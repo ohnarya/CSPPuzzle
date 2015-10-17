@@ -14,6 +14,14 @@ public class HousePuzzle {
 	public  ArrayList<String> drinks  = new ArrayList<String>(5);	
 	
 	int iter=0;	
+	int backtrack = 0;
+	int passconsistency = 0;
+	
+	public void printResult(){
+		System.out.format("\niternation:%d, pass: %d, backtrack:%d \n",iter,passconsistency, backtrack);
+		System.out.println("=========================================");
+		printBoard();
+	}
 	public void printBoard(){
 		for(int i=1;i<=5;i++){
 			for(String key:board.keySet()){
@@ -29,61 +37,56 @@ public class HousePuzzle {
 	 * 
 	 * */
 	public boolean backtrack(){
-		iter++;
 		
-		if(iter%10000==0){
-			System.out.format("[%d]",iter);
-			printBoard();
-		}
+//		if(iter%10000==0){
+//			System.out.format("[%d]",iter);
+//			printBoard();
+//		}
 		
+		Variable v = getUnAssignedVariable();
 
-		for(String key : board.keySet()){
-			if(board.get(key)>0)
-				continue;
-			
-			Variable v = variables.get(key);
-			String name  = v.name;
-			
-			if(v.getDomainSize()>0){
-				HashMap<Integer, Boolean> domain = v.getDomain();
-			    for(Integer i: domain.keySet()){
-			    	/*already assigned*/
-			    	if(board.get(name)>0)
-			    		continue;
-			    	
-			    	/*domain assigned */
-			    	if(domain.get(i))
-			    		continue;
-					
-			    	v.location = (int)i;
-			    	//System.out.format("target: [%d][%s][%d][%d] backtrack()\n",iter,v.getName(),v.location,v.getDomainSize());
-	
-			    	board.put(name, i);
-		    		domain.put(i, true);
-		    		
-			    	/*check consistency*/
-			    	if(consistency_house(v)){
-			    		//System.out.println("pass>>>>>>>>>>");
-	   		
-			    		/*backtrack*/
-			    		if(!backtrack()){
-			    			if(isComplete())
-			    				return true;
-			    			
-			    			domain.put(i,false);
-			    			board.put(name, -1);
-	
-			    		}
-			    	}else{
-			    		domain.put(i,false);
-		    			board.put(name, -1);
-			    		//System.out.format("[%d] FAIL>>>>>>>>>>>\n",(int)i);
-			    	}
-			    }
-			}
-		    return false;
+		if(v == null){
+			return true;
 		}
-		return true;
+		
+		String name = v.getName();
+			
+		if(v.getDomainSize()>0){
+			HashMap<Integer, Boolean> domain = v.getDomain();
+		    for(Integer i: domain.keySet()){
+		    	/*already assigned*/
+		    	if(board.get(name)>0)
+		    		continue;
+		    	
+		    	/*domain assigned */
+		    	if(domain.get(i))
+		    		continue;
+		    	iter++;
+		    	v.location = (int)i;
+
+		    	board.put(name, i);
+	    		domain.put(i, true);
+	    		
+		    	/*check consistency*/
+		    	if(consistency_house(v)){
+		    		passconsistency++;
+		    		/*backtrack*/
+		    		if(!backtrack()){
+		    			backtrack++;
+		    			if(isComplete())
+		    				return true;
+		    			
+		    			domain.put(i,false);
+		    			board.put(name, -1);
+
+		    		}
+		    	}else{
+		    		domain.put(i,false);
+	    			board.put(name, -1);
+		    	}
+		    }
+		}
+		return false;
 	}
 	
 	public boolean isDuplicated(Variable v){
