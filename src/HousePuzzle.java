@@ -36,21 +36,20 @@ public class HousePuzzle {
 	 * backtrack()
 	 * 
 	 * */
-	public boolean backtrack(){
+	public boolean backtrack(boolean mrv){
 		
-//		if(iter%10000==0){
-//			System.out.format("[%d]",iter);
-//			printBoard();
-//		}
+		Variable v = null;
+		if(!mrv)
+			v = getUnAssignedVariable();
+		else
+			v = getUnAssignedVariableMRV();
 		
-		Variable v = getUnAssignedVariable();
-
 		if(v == null){
-			return true;
+			return false;
 		}
-		
+
 		String name = v.getName();
-			
+
 		if(v.getDomainSize()>0){
 			HashMap<Integer, Boolean> domain = v.getDomain();
 		    for(Integer i: domain.keySet()){
@@ -61,7 +60,9 @@ public class HousePuzzle {
 		    	/*domain assigned */
 		    	if(domain.get(i))
 		    		continue;
-		    	iter++;
+		    	else{
+		    		iter++;
+		    	}
 		    	v.location = (int)i;
 
 		    	board.put(name, i);
@@ -71,7 +72,7 @@ public class HousePuzzle {
 		    	if(consistency_house(v)){
 		    		passconsistency++;
 		    		/*backtrack*/
-		    		if(!backtrack()){
+		    		if(!backtrack(mrv)){
 		    			backtrack++;
 		    			if(isComplete())
 		    				return true;
@@ -226,7 +227,205 @@ public class HousePuzzle {
 		return true;
 		
 	}
+	public void setDomainMRV(){
+
+		
+		for(String key:board.keySet()){
+			/*check assigned one */
+				int index = board.get(key);
+				Variable v = variables.get(key);
+				
+				for(int i=1;i<=5;i++){
+					if(index>0)
+						break;
+					if(i==index)
+						continue;
+					switch(key){
+						/*races*/
+						case "english":
+							if(board.get("english")<0 && board.get("red") > 0 && i != board.get("red")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;
+						case "red":
+							if(board.get("red")<0 && board.get("english") > 0 && i != board.get("english")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+							break;							
+						case "spaniard":
+							if(board.get("spaniard")<0 &&  board.get("dog") > 0 && i != board.get("dog")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;
+						case "dog":
+							if(board.get("dog")<0 && board.get("spaniard") > 0 && i != board.get("spaniard")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;								
+						case "norwegian":
+							if(board.get("norwegian")<0 && i==1)
+								v.insertDomain(i);
+							else
+								v.removeDomain(i);
+							
+							break;
+						case "yellow":
+							if(board.get("yellow")<0 && board.get("kitkat") > 0 && i != board.get("kitkat")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						case "kitkat":
+							if(board.get("kitkat")<0 && board.get("yellow") > 0 && i != board.get("yellow")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						case "blue":
+							if(board.get("blue")<0 && i==2)
+								v.insertDomain(i);
+							else
+								v.removeDomain(i);
+							
+							break;	
+						case "smarty":
+							if(board.get("smarty")<0 && board.get("snail") > 0 && i != board.get("snail")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						case "snail":
+							if(board.get("snail")<0 && board.get("smarty") > 0 && i != board.get("smarty")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						case "snicker":
+							if(board.get("snicker")<0 && board.get("orangejuice") > 0 && i != board.get("orangejuice")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						case "orangejuice":
+							if(board.get("orangejuice")<0 && board.get("snicker") > 0 && i != board.get("snicker")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;		
+						case "ukranian":
+							if(board.get("ukranian")<0 && board.get("tea") > 0 && i != board.get("tea")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;
+						case "tea":
+							if(board.get("tea")<0 && board.get("ukranian") > 0 && i != board.get("ukranian")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						case "japanese":
+							if(board.get("japanese")<0 && board.get("milkyway") > 0 && i != board.get("milkyway")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;
+						case "milkyway":
+							if(board.get("milkyway")<0 && board.get("japanese") > 0 && i != board.get("japanese")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+						
+						/*houses*/
+
+						case "green":
+							if(board.get("green")<0 && board.get("coffee") > 0 && i != board.get("coffee")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;	
+
+						case "coffee":
+							if(board.get("coffee")<0 && board.get("green") > 0 && i != board.get("green")){
+								v.removeDomain(i);
+							}else{
+								v.insertDomain(i);
+							}
+								
+							break;		
+						/*animal*/
 	
+						/*foods*/		
+						case "milk":
+							if(board.get("milk")<0 &&  i==3)
+								v.insertDomain(i);
+							else
+								v.removeDomain(i);
+							break;
+						default:
+							v.insertDomain(i);
+						
+
+					}
+				}
+		
+				variables.put(key,v);
+			}	
+	}
+	public Variable getUnAssignedVariableMRV(){
+		int min = 6;
+		Variable minV = null;
+		
+		setDomainMRV();
+		
+		for(String key:board.keySet()){
+			if(board.get(key)>0)
+				continue;
+			
+			Variable v = variables.get(key);
+			
+			if(min>v.getDomainSize()){
+				min  = v.getDomainSize();
+				minV = v;
+			}
+				
+		}
+		return minV;
+	}
 	/*
 	 * find unassigned variable
 	 * 
@@ -311,8 +510,8 @@ public class HousePuzzle {
 	/*
 	 * backtrackSearch
 	 * */
-	public boolean backtrackSearch() {
+	public boolean backtrackSearch(boolean mrv) {
 		System.out.println("BacktrackSearch has started!");
-		return backtrack();
+		return backtrack(mrv);
 	}	
 }

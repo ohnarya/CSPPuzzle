@@ -15,6 +15,13 @@ public class Variable {
 	public HashMap<Integer,Boolean> getDomain(){
 		return domain;
 	}
+	public void setDomain(boolean[] b){
+
+		
+		for(int i=1;i<=5;i++){
+			this.domain.put(i,b[i]);
+		}
+	}
 	public void setDefaultDomain(){
 		for(int i=1;i<=5;i++){
 			domain.put(i,false);
@@ -33,11 +40,11 @@ public class Variable {
 	}
 	
 	public void insertDomain(int location){
-		domain.put(location,true);
+		domain.put(location,false);
 	}
 	
 	public void removeDomain(int location){
-		domain.remove(location,false);
+		domain.put(location,true);
 	}
 	
 }
