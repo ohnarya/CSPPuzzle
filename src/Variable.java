@@ -1,4 +1,10 @@
-import java.util.ArrayList;
+/*
+ * Author : Jiyoung Hwang
+ * Description : manage variable and domain to solve a CSP 
+ * Date   : 2015.10.17
+ * 
+ * */
+
 import java.util.HashMap;
 
 

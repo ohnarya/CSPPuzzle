@@ -1,36 +1,37 @@
+/*
+ * Author : Jiyoung Hwang
+ * Description : run House puzzle with/without MRV heuristic using backtracking
+ *                
+ * Date   : 2015.10.17
+ */
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Stack;
 
 
 public class HousePuzzle {
-	public  HashMap<String, Integer> board = new HashMap<String, Integer>(25);
-	public  HashMap<String, Variable> variables = new HashMap<String, Variable>(25);
 	
+	/*data structure*/
+	public  HashMap<String, Integer>  board     = new HashMap<String, Integer>(25); /*hold overall status*/
+	public  HashMap<String, Variable> variables = new HashMap<String, Variable>(25);/*hold variables and its domains*/ 
+	
+	/*input*/
 	public  ArrayList<String> houses  = new ArrayList<String>(5);
 	public  ArrayList<String> races   = new ArrayList<String>(5);
 	public  ArrayList<String> animals = new ArrayList<String>(5);
 	public  ArrayList<String> foods   = new ArrayList<String>(5);
 	public  ArrayList<String> drinks  = new ArrayList<String>(5);	
 	
-	int iter=0;	
-	int backtrack = 0;
+	int iter            = 0;	
+	int backtrack       = 0;
 	int passconsistency = 0;
 	
-	public void printResult(){
-		System.out.format("\niternation:%d, pass: %d, backtrack:%d \n",iter,passconsistency, backtrack);
-		System.out.println("=========================================");
-		printBoard();
-	}
-	public void printBoard(){
-		for(int i=1;i<=5;i++){
-			for(String key:board.keySet()){
-				if(board.get(key)==i)
-					System.out.print(key + "/");
-			}
-			System.out.println("");
-		}
-		System.out.println("=========================================");
+	/*
+	 * backtrackSearch
+	 * */
+	public boolean backtrackSearch(boolean mrv) {
+		return backtrack(mrv);
 	}
 	/*
 	 * backtrack()
@@ -89,48 +90,10 @@ public class HousePuzzle {
 		}
 		return false;
 	}
-	
-	public boolean isDuplicated(Variable v){
-		int racecnt   = 0;
-		int housecnt  = 0;
-		int animalcnt = 0;
-		int foodcnt   = 0;
-		int drinkcnt  = 0;
-		String name   = v.name;
-		int location  = v.location;
-		
-		for(String s:board.keySet()){
-			if(board.get(s) == location){
-				if(races.contains(name) && races.contains(s)){
-					racecnt++;
-					if(racecnt>1)
-						return true;
-				}else if(houses.contains(name) && houses.contains(s)){
-					housecnt++;
-					if(housecnt>1)
-						return true;
-				}else if(animals.contains(name) && animals.contains(s)){
-					animalcnt++;
-					if(animalcnt>1)
-						return true;
-				}else if(foods.contains(name) && foods.contains(s)){
-					foodcnt++;
-					if(foodcnt>1)
-						return true;
-				}else if(drinks.contains(name) && drinks.contains(s)){
-					drinkcnt++;
-					if(drinkcnt>1)
-						return true;
-				}
-			}
-		}
-		
-		return false;
-	}
+	/*
+	 * consistency test
+	 * */
 	public boolean consistency_house(Variable v) {
-		String name = v.getName();
-		int location = v.location;
-
 		
 		if(isDuplicated(v)){
 			//System.out.println("Duplicated!");
@@ -166,7 +129,7 @@ public class HousePuzzle {
 				return false; 
 		}	
 
-//		//rule 5. the man who eats hershey bars lives in the house next to the man with the fox
+		//rule 5. the man who eats hershey bars lives in the house next to the man with the fox
 		int hershey = board.get("hershey");
 		int fox     = board.get("fox");
 		
@@ -227,6 +190,104 @@ public class HousePuzzle {
 		return true;
 		
 	}
+	
+	/*
+	 * find unassigned variable without MRV heuristic
+	 * 
+	 * */
+	public Variable getUnAssignedVariable(){
+		String ret = null;
+		for(String key : board.keySet()){
+			if(board.get(key)>0)
+				continue;
+			else{
+				ret = key;
+				break;
+			}
+		}
+		return (ret==null)? null:variables.get(ret);
+	}
+	
+	/*
+	 * find unassigned variable with MRV heuristic
+	 * 
+	 * */	
+	
+	public Variable getUnAssignedVariableMRV(){
+		int min = 6;
+		Variable minV = null;
+		
+		setDomainMRV();
+		
+		for(String key:board.keySet()){
+			if(board.get(key)>0)
+				continue;
+			
+			Variable v = variables.get(key);
+			
+			if(min>v.getDomainSize()){
+				min  = v.getDomainSize();
+				minV = v;
+			}
+				
+		}
+		return minV;
+	}
+	/*
+	 * check search is complete
+	 * */
+	public boolean isComplete(){
+		for(String key : board.keySet()){
+			if(board.get(key)>0)
+				continue;
+			else
+				return false;
+		}
+		return true;
+	}
+	/*
+	 * check if there is duplicated value
+	 */
+	public boolean isDuplicated(Variable v){
+		int racecnt   = 0;
+		int housecnt  = 0;
+		int animalcnt = 0;
+		int foodcnt   = 0;
+		int drinkcnt  = 0;
+		String name   = v.name;
+		int location  = v.location;
+		
+		for(String s:board.keySet()){
+			if(board.get(s) == location){
+				if(races.contains(name) && races.contains(s)){
+					racecnt++;
+					if(racecnt>1)
+						return true;
+				}else if(houses.contains(name) && houses.contains(s)){
+					housecnt++;
+					if(housecnt>1)
+						return true;
+				}else if(animals.contains(name) && animals.contains(s)){
+					animalcnt++;
+					if(animalcnt>1)
+						return true;
+				}else if(foods.contains(name) && foods.contains(s)){
+					foodcnt++;
+					if(foodcnt>1)
+						return true;
+				}else if(drinks.contains(name) && drinks.contains(s)){
+					drinkcnt++;
+					if(drinkcnt>1)
+						return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	/*
+	 * set domain as a variable has assigned
+	 * */
 	public void setDomainMRV(){
 
 		
@@ -367,8 +428,6 @@ public class HousePuzzle {
 							}
 								
 							break;	
-						
-						/*houses*/
 
 						case "green":
 							if(board.get("green")<0 && board.get("coffee") > 0 && i != board.get("coffee")){
@@ -387,9 +446,7 @@ public class HousePuzzle {
 							}
 								
 							break;		
-						/*animal*/
 	
-						/*foods*/		
 						case "milk":
 							if(board.get("milk")<0 &&  i==3)
 								v.insertDomain(i);
@@ -398,7 +455,6 @@ public class HousePuzzle {
 							break;
 						default:
 							v.insertDomain(i);
-						
 
 					}
 				}
@@ -406,52 +462,8 @@ public class HousePuzzle {
 				variables.put(key,v);
 			}	
 	}
-	public Variable getUnAssignedVariableMRV(){
-		int min = 6;
-		Variable minV = null;
-		
-		setDomainMRV();
-		
-		for(String key:board.keySet()){
-			if(board.get(key)>0)
-				continue;
-			
-			Variable v = variables.get(key);
-			
-			if(min>v.getDomainSize()){
-				min  = v.getDomainSize();
-				minV = v;
-			}
-				
-		}
-		return minV;
-	}
 	/*
-	 * find unassigned variable
-	 * 
-	 * */
-	public Variable getUnAssignedVariable(){
-		String ret = null;
-		for(String key : board.keySet()){
-			if(board.get(key)>0)
-				continue;
-			else{
-				ret = key;
-				break;
-			}
-		}
-		return (ret==null)? null:variables.get(ret);
-	}
-	
-	public boolean isComplete(){
-		for(String key : board.keySet()){
-			if(board.get(key)>0)
-				continue;
-			else
-				return false;
-		}
-		return true;
-	}
+	 * initialize puzzle */
 
 	
 	HousePuzzle(){
@@ -507,11 +519,27 @@ public class HousePuzzle {
 			variables.put(s,new Variable(s));
 		}
 	}
+	
 	/*
-	 * backtrackSearch
+	 * print result 
 	 * */
-	public boolean backtrackSearch(boolean mrv) {
-		System.out.println("BacktrackSearch has started!");
-		return backtrack(mrv);
-	}	
+	
+	public void printResult(boolean mrv){
+		System.out.format("\n\nHouse Puzzle: %s iternation=%d, pass=%d, backtrack=%d \n",(mrv?"MRV":"BASELINE"), iter,passconsistency, backtrack);
+		System.out.println("-----------------------------------------------------");
+		printBoard();
+	}
+	/*
+	 * printBoard
+	 * */
+	public void printBoard(){
+		for(int i=1;i<=5;i++){
+			for(String key:board.keySet()){
+				if(board.get(key)==i)
+					System.out.format("[%-11s]",key);
+			}
+			System.out.println("");
+		}
+		System.out.println("-----------------------------------------------------");
+	}
 }
