@@ -24,5 +24,5 @@ This shows the result below in an order of `Job puzzle (baseline)`, `Job puzzle 
 
 >As below, total iterations show a huge difference. By choosing a variable with minimum remaining variables, iterations searching for the right answer are dramatically reduced because it prunes out a tree where it doesn’t need to traverse. If it chooses another variable with more values, then it goes around seeking routes not leading to the goal.
 
-
+![ScreenShot](https://cloud.githubusercontent.com/assets/12659571/10562946/4da283c8-753a-11e5-800f-9a9f8ab3680d.png)
 
